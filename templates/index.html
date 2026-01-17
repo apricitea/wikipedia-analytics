@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wikipedia Analytics Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📊 Wikipedia Analytics</h1>
+            <p class="subtitle">Explore Wikipedia statistics and trends</p>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search Wikipedia articles..."
+                    autocomplete="off"
+                >
+                <button id="searchBtn">🔍 Search</button>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </section>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard" id="dashboard" style="display: none;">
+            <!-- Article Info -->
+            <section class="card article-info">
+                <h2 id="articleTitle">Article Title</h2>
+                <p id="articleExtract" class="extract"></p>
+                <div class="article-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="articleLength">-</span>
+                        <span class="stat-label">Characters</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="categoryCount">-</span>
+                        <span class="stat-label">Categories</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="imageCount">-</span>
+                        <span class="stat-label">Images</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="revisionCount">-</span>
+                        <span class="stat-label">Revisions</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View Statistics -->
+            <section class="card views-section">
+                <h3>📈 Page Views (Last 30 Days)</h3>
+                <div class="views-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Total:</span>
+                        <span class="summary-value" id="totalViews">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Daily Avg:</span>
+                        <span class="summary-value" id="avgViews">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Peak:</span>
+                        <span class="summary-value" id="maxViews">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Trend:</span>
+                        <span class="summary-value trend" id="viewTrend">-</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="viewsChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Categories -->
+            <section class="card categories-section">
+                <h3>📁 Categories</h3>
+                <div id="categoriesList" class="categories-list"></div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="card activity-section">
+                <h3>🕐 Recent Activity</h3>
+                <div id="recentEdits" class="activity-list"></div>
+            </section>
+
+            <!-- Article Quality -->
+            <section class="card quality-section">
+                <h3>⭐ Article Quality</h3>
+                <div class="quality-score">
+                    <div class="score-circle" id="qualityScore">
+                        <span class="score-value">-</span>
+                    </div>
+                    <div class="quality-details">
+                        <div class="quality-grade" id="qualityGrade">-</div>
+                        <ul class="quality-factors" id="qualityFactors"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trending Articles -->
+            <section class="card trending-section">
+                <h3>🔥 Trending Now</h3>
+                <div id="trendingList" class="trending-list"></div>
+            </section>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Error Toast -->
+        <div id="errorToast" class="error-toast"></div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
