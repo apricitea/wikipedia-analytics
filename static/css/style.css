@@ -1,50 +1,164 @@
 /**
- * Team Grid & Cards Styles
- * Handles responsive layout for team member profiles using CSS Grid.
+ * FAQ Accordion Styles
+ *
+ * This module provides styling for the FAQ accordion component.
+ * It uses semantic HTML5 details/summary elements for native
+ * expand/collapse functionality without requiring JavaScript.
+ */
+
+/* Container for the FAQ section */
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Base styles for the accordion item */
+.faq-item {
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  margin-bottom: 0.5rem;
+}
+
+/* Remove default marker from summary and style as a clickable button */
+.faq-summary {
+  list-style: none; /* Hides default triangle in some browsers */
+  cursor: pointer;
+  padding: 1.25rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--color-text-primary, #333);
+  background-color: var(--color-bg-secondary, #f9f9f9);
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Fallback for browsers that don't support list-style: none on summary */
+.faq-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Hover state for the summary */
+.faq-summary:hover {
+  background-color: var(--color-bg-hover, #f0f0f0);
+  color: var(--color-primary, #007bff);
+}
+
+/* Focus state for accessibility */
+.faq-summary:focus {
+  outline: 2px solid var(--color-focus, #005fcc);
+  outline-offset: 2px;
+}
+
+/* Custom Icon Indicator */
+.faq-summary::after {
+  content: '+';
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+/* Rotate icon when details are open */
+details[open] .faq-summary::after {
+  transform: rotate(45deg);
+}
+
+/* Style the content wrapper */
+.faq-content {
+  padding: 1.5rem;
+  color: var(--color-text-secondary, #555);
+  line-height: 1.6;
+  background-color: #fff;
+  border-radius: 0 0 4px 4px;
+  /* Smooth animation for opening */
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Simple fade-in animation for content */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .faq-container {
+    padding: 1rem;
+  }
+
+  .faq-summary {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .faq-content {
+    padding: 1rem;
+  }
+}
+
+/**
+ * Team Section Styles
+ *
+ * This module provides styling for the team/about section.
+ * Displays team members in a responsive grid layout.
  */
 
 /* Team Section Container */
 .team-section {
-  padding: 4rem 1rem;
+  padding: 4rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* 
- * Team Grid Layout
- * Uses CSS Grid for a responsive 2D layout.
- * - Columns: Automatically fit as many 280px cards as possible with equal spacing.
- * - Rows: Standard spacing between vertical items.
- */
+/* Section Header */
+.team-section__header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.team-section__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 1rem 0;
+}
+
+.team-section__subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Team Grid Layout */
 .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-  list-style: none; /* Removes default list styling if using <ul> */
-  padding: 0;
-  margin: 0;
+  margin-bottom: 2rem;
 }
 
-/* 
- * Team Card Component
- * Styles individual team member cards with hover effects.
- */
+/* Team Member Card */
 .team-card {
-  background-color: #ffffff;
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 2rem;
-  height: 100%; /* Ensures cards stretch to equal height in grid rows */
-  border: 1px solid #eaeaea;
 }
 
-/* Interactive State: Hover */
 .team-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
@@ -104,7 +218,7 @@
   color: #007bff; /* Adjust to match brand color */
 }
 
-/* 
+/*
  * Responsive Adjustments
  * Optimizes spacing for smaller viewports.
  */
