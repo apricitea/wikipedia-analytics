@@ -49,8 +49,9 @@ class AnalyticsEngine:
             max_views = max(views_list)
             min_views = min(views_list)
 
-            # Determine trend
-            if len(views_list) >= 7:
+            # Determine trend (needs a "recent 7" window plus at least 1 day
+            # before it to compare against; exactly 7 days of data isn't enough)
+            if len(views_list) > 7:
                 recent_avg = sum(views_list[-7:]) / 7
                 earlier_avg = sum(views_list[:-7]) / (len(views_list) - 7)
                 if recent_avg > earlier_avg * 1.1:
@@ -137,8 +138,8 @@ class AnalyticsEngine:
             List of trending articles with stats
         """
         try:
-            # Get random articles (simulating trending)
-            titles = self.wiki.get_random_articles(count=limit * 2)
+            # Yesterday's actual most-viewed articles (real Wikimedia pageview data)
+            titles = self.wiki.get_top_viewed_articles(count=limit * 2)
 
             trending = []
             for title in titles[:limit]:

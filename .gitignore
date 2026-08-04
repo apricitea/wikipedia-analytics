@@ -4,3 +4,8 @@ __pycache__/
 venv/
 node_modules/
 .DS_Store
+
+# python venv used for local verification
+.venv/
+__pycache__/
+.pytest_cache/

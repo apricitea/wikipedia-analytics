@@ -1,58 +1,47 @@
-from flask import Blueprint, jsonify, render_template
+"""
+Wikipedia Analytics Dashboard
+Flask entrypoint wiring the WikipediaAPI client and AnalyticsEngine to the
+dashboard frontend (templates/index.html, static/js/app.js).
+"""
 
-# Create a blueprint for FAQ related routes. 
-# This allows for better organization of the codebase.
-faq_bp = Blueprint('faq', __name__)
+from flask import Flask, render_template, jsonify, request
 
-# Predefined Q&A items as requested.
-# In a production environment, these might be stored in a database.
-FAQ_ITEMS = [
-    {
-        "id": 1,
-        "question": "How do I reset my password?",
-        "answer": "Go to Settings > Security and click on 'Reset Password'. You will receive an email with instructions."
-    },
-    {
-        "id": 2,
-        "question": "What payment methods do you accept?",
-        "answer": "We accept all major credit cards (Visa, Mastercard, American Express) and PayPal."
-    },
-    {
-        "id": 3,
-        "question": "How can I contact customer support?",
-        "answer": "You can reach our support team via email at support@example.com or through the contact form on our website."
-    },
-    {
-        "id": 4,
-        "question": "Is there a mobile app available?",
-        "answer": "Yes, our mobile app is available for both iOS and Android devices. You can download it from the App Store or Google Play."
-    },
-    {
-        "id": 5,
-        "question": "How do I delete my account?",
-        "answer": "To delete your account, please navigate to Settings > Account > Delete Account. Please note that this action is irreversible."
-    }
-]
+from api.wikipedia import WikipediaAPI
+from api.analytics import AnalyticsEngine
 
-@faq_bp.route('/faq')
-def get_faq():
-    """
-    Handles the GET request for the FAQ endpoint.
-    
-    Returns:
-        JSON: A list containing the 5 predefined Q&A items.
-    """
+app = Flask(__name__)
+wiki = WikipediaAPI()
+analytics = AnalyticsEngine()
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/api/search/<query>')
+def search(query):
+    results = wiki.search(query)
+    return jsonify({'success': True, 'results': results})
+
+
+@app.route('/api/article/<title>')
+def article(title):
     try:
-        # Return the data as JSON with a 200 OK status code
-        return jsonify({
-            "status": "success",
-            "count": len(FAQ_ITEMS),
-            "data": FAQ_ITEMS
-        }), 200
+        info = wiki.get_article_info(title)
     except Exception as e:
-        # Log the error in a real application
-        # app.logger.error(f"Error serving FAQ: {e}")
-        return jsonify({
-            "status": "error",
-            "message": "An internal error occurred while fetching FAQs."
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 404
+
+    views = analytics.get_view_stats(title, days=30)
+    return jsonify({'success': True, 'article': info, 'views': views})
+
+
+@app.route('/api/trending')
+def trending():
+    limit = request.args.get('limit', default=5, type=int)
+    articles = analytics.get_trending_articles(limit=limit)
+    return jsonify({'success': True, 'trending': articles})
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)

@@ -6,6 +6,7 @@ Handles all interactions with the Wikipedia REST API and MediaWiki API.
 import requests
 import datetime
 from typing import Dict, List, Optional
+from urllib.parse import quote
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,7 @@ class WikipediaAPI:
         self.lang = lang
         self.base_url = f'https://{lang}.wikipedia.org/api/rest_v1'
         self.mediawiki_url = f'https://{lang}.wikipedia.org/w/api.php'
+        self.metrics_url = 'https://wikimedia.org/api/rest_v1/metrics'
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'WikipediaAnalytics/1.0 (Educational Purpose)'
@@ -74,7 +76,7 @@ class WikipediaAPI:
         """
         try:
             # Get article summary and metadata
-            url = f'{self.base_url}/page/summary/{title}'
+            url = f'{self.base_url}/page/summary/{quote(title.replace(" ", "_"), safe="")}'
             response = self.session.get(url)
             response.raise_for_status()
             summary = response.json()
@@ -156,8 +158,12 @@ class WikipediaAPI:
             start_str = start_date.strftime('%Y%m%d')
             end_str = end_date.strftime('%Y%m%d')
 
-            # Fetch page views
-            url = f'{self.base_url}/metrics/pageviews/per-article/{self.lang.wikipedia}/{title}/daily/{start_str}/{end_str}'
+            # Fetch page views (hosted centrally on wikimedia.org, not the per-language rest_v1 host)
+            article = quote(title.replace(' ', '_'), safe='')
+            url = (
+                f'{self.metrics_url}/pageviews/per-article/'
+                f'{self.lang}.wikipedia/all-access/all-agents/{article}/daily/{start_str}/{end_str}'
+            )
             response = self.session.get(url)
             response.raise_for_status()
             data = response.json()
@@ -255,4 +261,43 @@ class WikipediaAPI:
 
         except Exception as e:
             logger.error(f"Failed to get random articles: {e}")
+            return []
+
+    _NON_ARTICLE_PREFIXES = ('Special:', 'Wikipedia:', 'Portal:', 'Category:', 'File:', 'Talk:', 'Help:', 'Template:')
+
+    def get_top_viewed_articles(self, count: int = 10) -> List[str]:
+        """Get yesterday's globally most-viewed article titles (real Wikimedia
+        pageview data, not a random sample). Filters out non-article pages
+        like Main_Page and Special:Search.
+
+        Args:
+            count: Number of article titles to return
+
+        Returns:
+            List of article titles (spaces, not underscores)
+        """
+        try:
+            yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+            url = (
+                f'{self.metrics_url}/pageviews/top/{self.lang}.wikipedia/all-access/'
+                f'{yesterday.year}/{yesterday.month:02d}/{yesterday.day:02d}'
+            )
+            response = self.session.get(url)
+            response.raise_for_status()
+            data = response.json()
+
+            articles = data.get('items', [{}])[0].get('articles', [])
+            titles = []
+            for a in articles:
+                title = a.get('article', '')
+                if title == 'Main_Page' or title.startswith(self._NON_ARTICLE_PREFIXES):
+                    continue
+                titles.append(title.replace('_', ' '))
+                if len(titles) >= count:
+                    break
+
+            return titles
+
+        except Exception as e:
+            logger.error(f"Failed to get top viewed articles: {e}")
             return []
